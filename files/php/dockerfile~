@@ -72,6 +72,7 @@ ENV PATH $COMPOSER_HOME/vendor/bin:$PATH
 RUN rm -f /home/redis.tgz
 
 WORKDIR /data
+
 #  Write Permission
 RUN usermod -u 1000 www-data
 
