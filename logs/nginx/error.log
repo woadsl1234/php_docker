@@ -1,0 +1,14 @@
+2018/08/29 22:01:53 [emerg] 1#1: unexpected "}" in /etc/nginx/conf.d/default.conf:49
+2018/08/29 22:02:00 [emerg] 1#1: unexpected "}" in /etc/nginx/conf.d/default.conf:49
+2018/08/29 22:02:06 [emerg] 1#1: unexpected "}" in /etc/nginx/conf.d/default.conf:49
+2018/08/29 22:02:13 [emerg] 1#1: unexpected "}" in /etc/nginx/conf.d/default.conf:49
+2018/08/29 22:02:19 [emerg] 1#1: unexpected "}" in /etc/nginx/conf.d/default.conf:49
+2018/08/29 22:02:25 [emerg] 1#1: unexpected "}" in /etc/nginx/conf.d/default.conf:49
+2018/08/29 22:02:30 [emerg] 1#1: unexpected "}" in /etc/nginx/conf.d/default.conf:49
+2018/08/29 22:02:37 [emerg] 1#1: unexpected "}" in /etc/nginx/conf.d/default.conf:49
+2018/08/29 22:02:55 [emerg] 1#1: unexpected "}" in /etc/nginx/conf.d/default.conf:49
+2018/08/29 22:03:26 [emerg] 1#1: unexpected "}" in /etc/nginx/conf.d/default.conf:49
+2018/08/29 22:04:23 [emerg] 1#1: unexpected "}" in /etc/nginx/conf.d/default.conf:49
+2018/08/29 22:05:27 [emerg] 1#1: unexpected "}" in /etc/nginx/conf.d/default.conf:49
+2018/08/29 22:06:35 [emerg] 1#1: unexpected "}" in /etc/nginx/conf.d/default.conf:49
+2018/08/30 13:54:56 [error] 6#6: *3 rewrite or internal redirection cycle while internally redirecting to "/index.html", client: 172.19.0.1, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "127.0.0.1:8000", referrer: "http://127.0.0.1:8000/"

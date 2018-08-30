@@ -1,16 +1,13 @@
-version: '1.0'
+version: '3.2'
 services:
   php-fpm:
     build: ./php/
     ports:
       - "9000:9000"
-    links:
-      - redis-db:redis-db
     volumes:
       - ../app:/data/www:rw
-      - ./php/php-dev.ini:/usr/local/etc/php/php.ini:ro
+      - ./php/php.ini:/usr/local/etc/php/php.ini:ro # 当前php配置文件；可以拷贝修改php-dev.ini为想要的配置
       - ./php/php-fpm.conf:/usr/local/etc/php-fpm.conf:ro
-      - ../logs/php-fpm:/var/log/php-fpm:rw
     restart: always
     command: php-fpm
 
@@ -26,11 +23,34 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ../logs/nginx:/var/log/nginx
     ports:
-      - "9980:80"
-      - "8080:8080"
-      - "9443:443"
+      - "8000:80"
+      # - "8080:8080"
+      # - "443:443"
     restart: always
     command: nginx -g 'daemon off;'
-
-
+  #<!--定义zk层服务-->
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+  #<!--定义Kafka层-->
+  kafka:
+    image: wurstmeister/kafka
+    #<!--优先使用基础镜像，而不是本地Dockerfile的重新构建方式，实际情况可以与build配置项二选一，因此下面一行注释掉-->
+    # <!--build: .-->
+    depends_on: 
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: 192.168.1.101
+      KAFKA_CREATE_TOPICS: "test:1:1"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  xunsearch:
+    image: hightman/xunsearch:latest
+    restart: always
+    volumes:
+      - ./xunsearch/data:/usr/local/xunsearch/data  
 
