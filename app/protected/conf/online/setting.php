@@ -1,0 +1,62 @@
+<?php
+return array (
+    'site_name' => '二货商店',
+    'home_title' => '二货商店',
+    'home_keywords' => '',
+    'home_description' => '杭电二货是从杭州电子科技大学中孵化出来，口碑极佳的校园二手交易平台，现有数千人的社群、二手书店和二货数码等业务',
+    'footer_info' => '<p>Copyright © 2017 二货商店</p>',
+    'goods_search_per_num' => '20',
+    'upload_filetype' => '.jpg|.jpeg|.gif|.png|.bmp|.swf|.flv|.avi|.rmvb',
+    'upload_filesize' => '2MB',
+    'captcha_admin_login' => '2',
+    'captcha_user_login' => '2',
+    'captcha_user_register' => '0',
+    'captcha_feedback' => '1',
+    'smtp_server' => 'smtp.163.com',
+    'smtp_user' => '17764592463@163.com',
+    'smtp_password' => '2010collect',
+    'smtp_port' => '25',
+    'smtp_secure' => 'tls',
+    'admin_mult_ip_login' => '1',
+    'upload_goods_filesize' => 307200,
+    'visitor_stats' => '1',
+    'goods_hot_searches' => '毛概,马原',
+    'cate_goods_per_num' => '20',
+    'goods_history_num' => '5',
+    'goods_related_num' => '5',
+    'goods_review_per_num' => '10',
+    'upload_goods_filetype' =>
+        array (
+            0 => '.jpg',
+            1 => '.png',
+            2 => '.gif',
+        ),
+    'show_goods_stock' => '1',
+    'order_cancel_expires' => '3',
+    'enabled_theme' => 'default',
+    'user_consignee_limits' => '10',
+    'upload_avatar_filesize' => '0',
+    'order_delivery_expires' => '7',
+    'user_register_email_verify' => '0',
+    'user_review_approve' => '0',
+    'data_cache_lifetime' => '7200',
+    'goods_fulltext_query' => '0',
+    'debug' => '0',
+    'image_host' => 'https://image.tiaozaoj.com/',
+    'image_style' => array(
+        'small' => '?imageView2/0/w/150/h/150/interlace/1/q/100',
+        'middle' => '?imageView2/0/w/250/h/250/interlace/1/q/100',
+        'large' => '?imageView2/0/w/500/h/500/interlace/1/q/100'
+    ),
+    'alipay' => [
+        'gateway' => "https://openapi.alipay.com/gateway.do",
+        'rsa_private_key' => "MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCUuf2yZ7U9AhYOoFCrAtjDuSwudilCD/LkASvOiyFgqwol3DAHmuHl5NqTeIwafMzsgXcTOGCubfGxIPSZs14wiUEulbzbB6TPYKPChO0CPg4DAWW+YnOk2FSCXbtuF0qw4HSd7pPzyZ6c4RKfTuXdTjucetrfgm/lwF4zXeSq9Om7zZai2G7H5pr3+aQxu/yZdvP8b4tg6YS0UGrcOtQjlniTPWwxjJ+VHZ+z8hLh4RoCSK6W0y7/sZhcZaBe2UR+O6HBizpdRkw8cienagCsarItvccGy4RNe1UKTMK3G5A2nvR2t8xMy55bvMmgJO1l409ckC58zJLLXs+lbO4NAgMBAAECggEANCCENNV4hmuGw5WY8HdM9jyeqaIsj8T7QsLOUdQd3L3WDrL/+opkhqkRmwJzSI1ZXcN6srfd2wUZ4xVD5eMiLizNNcCxsqsZLr4WZ4UjdNe/HXqN6I6lLa/M3uxvVwS+3wOsm/YU0StndmDEoCWNF2XmKtA8in4zLfmgiqxsCybHLHzuCTQgv/IqtCdrYrSM/o56uT0k6STn869aXWFzaSlZGZS5Dx0wuxQBal8uAjx86pcZYWop0Nt7iBXqENtaOYSZQtkMQhIXG/KEIkFVmBe+OpAtTKs8L6UJ7vjIPgizNPaGYeVD45ZmDDGrLFBuulmKn8Ycw9wX6F4Fo/HR2QKBgQDKod0DL6Mxk+R2k/anSajIAIf3ypnGXjNJwtgpcBs2inS/7xNW60MyjarZ9uEmm2+uNRi9IRFuq0K+rnkNFPuEliChFYawRIapzF47cemXl6Zg9uJEOlmxk19UknICiKmbOlo1x/N8fzoO+3m5r8sTj4Gkqa+SLcU9b63kJcVujwKBgQC75Z/E4zxCzA9lvb/me0GYHBI2FbTj5re71uK2NqboIQC0+bFgPMncvkjW631K25/FdkGelItZoPCeNvJTEAfBDliJVncqDyNB5k7P00aXj+GxGipw71g/PzYV9KAowboBrBKCt9ILc9kuhQVwB/AppiSgRlEw6oODZ3BNIQRnowKBgFSxUq8COjN+nP7y2SUSpHjzv+DRzXQb61PpHHA1aypgtGuEgZDSxENc8wwnI/P/A67MgoqKR7751evdALt3CalhFkI9vQ3vllliEgDGm9vAhsoAZpId0V9nOXEfxIdKl5lJymqwKBThGGMquLXjw/1o/cbVJYzzlH0ZMJUrNFoBAoGARADUNSbkvWwrOnBVTq5XTB0EvkxW3pC2+KXKAZaAC809+0HPX3xAtsKrjBVIkFoyVf35u9IZKQQlca2DQGqx075Ebtg7Yp597TDUX0Ug7GOnlDhbGeqV7rYK9iFGAdozXr2PKX4r5/cyqDJ+iFBnLDu0T8mDQwftNxatv0xu0q8CgYAVhtMNkL5JoWFkkcuJWsIrc4HT+SmOjJwQ9y/jTqsSITNcevFoyTWnFDqYJb51Tk4vMEXUgXTRqotHVTRpz+kunGzOXtH24GE0Yxi0dTiQQen8BX9nbtTFYbK6T5WNRTBuJwzT/IaVfJv418EC9OR0Jk02heNAassUeDrlb1xOnw==",
+        'rsa_public_key' => "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAivgrabqE7o81mZFekDXWzFkqFm2yqaRgNgxXZpJpI0UR0ALpAMcDC4Ezut4mpIqusZ0R9oXQ0npy3bZrqkAVa+8V1b9ba7S/L/Kf/vmIwT8qRl2HuIQXvjkNxaqzxFc87Qbry2mtD1QRq4iqj6lmv1k7UbCC0540XG63BOzPxNVLnoFikIFSmHVbyWRNdow5taPCV1Chy4IdBI9tGRvV4M/lTgv2XRnuxYSZoCnZxgyNKDFWs+HLtJ3y0k0sTZb/QeiOGsIDpjG3vy8qbNxGp6pgyEVdD6EdakqB2zqY19MP4aYvUfwdI+djWAPYSGIR164uTaxinO6pK+Z23nw34wIDAQAB"
+    ],
+    'sandbox' => false,
+    'encrypt_key' => '2ZaIHTcHo9Qj4tuTMRylySJ5EaIsKxnB',
+    'kafka' => [
+        'broker_list' => '192.168.48.3:9092'
+    ],
+    'http_host' => 'https://m.tiaozaoj.com',
+);

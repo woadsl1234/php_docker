@@ -1,0 +1,9 @@
+protected/resources/timer.txt
+protected/cache
+.DS_Store
+*.log
+/vendor
+.idea/workspace.xml
+.idea/php.xml
+.idea/verydows.iml
+!.gitignore

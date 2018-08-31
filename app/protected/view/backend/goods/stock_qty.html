@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+
+<body>
+    <div id="app">
+        <el-container>
+            <el-main>
+                <el-form ref="form" :model="form" label-width="80px" :rules="rules">
+                    <el-col :span="10">
+                        <el-form-item label="库存" prop="major">
+                            <el-input v-model="form.stock_qty"></el-input>
+                        </el-form-item>
+                        <el-form-item label="货号" prop="college">
+                            <el-input v-model="form.goods_sn" @keyup.enter.native="submitForm()" autofocus="true" id="goods_sn" clearable></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="submitForm()" :loading="loading">提交</el-button>
+                        </el-form-item>
+                    </el-col>
+                </el-form>
+            </el-main>
+        </el-container>
+    </div>
+</body>
+<!-- import Vue before Element -->
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script type="text/javascript" src="public/script/jquery.js"></script>
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script>
+    Vue.directive('focus', function (el) {
+        el.focus()
+    })
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                loading: false,
+                form: {
+                    goods_sn: '',
+                    stock_qty: 1
+                },
+                rules: {
+                    goods_sn: [
+                        { required: true, message: '请填写货号', trigger: 'blur' },
+                    ],
+                    stock_qty: [
+                        { required: true, message: '请填写库存', trigger: 'blur' },
+                    ]
+                }
+            }
+        },
+        methods: {
+            submitForm() {
+                let that = this
+                this.$refs['form'].validate((valid) => {
+                    if (valid) {
+                        if (that.form.goods_sn.trim() == '') {
+                            return
+                        }
+                        that.loading = true
+                        $.ajax({
+                            url: "<{url m=$MOD c='goods' a='stock_qty' step='submit'}>",
+                            method: 'post',
+                            data: { 
+                                goods_sn: that.form.goods_sn,
+                                stock_qty: that.form.stock_qty
+                            },
+                            success: function (res) {
+                                var res = JSON.parse(res)
+                                that.$message({
+                                    message: res.msg,
+                                    type: res.status
+                                });
+                                that.loading = false
+                                var audioUrl = "<{url m=$MOD c='iflytek' a='combine_voice'}>" + "&text=" + res.msg
+                                var audio = new Audio(audioUrl)
+                                that.form.goods_sn = ''
+                                that.form.stock_qty = 1
+                                document.getElementById('goods_sn').focus();
+                                audio.play();
+                            }
+                        })
+                    } else {
+                        return false;
+                    }
+                });
+            }
+        },
+        mounted: function() {
+            document.getElementById('goods_sn').focus();
+        }
+    })
+</script>
+
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body>
+    <div id="app">
+        <el-container v-loading.fullscreen.lock="fullscreenLoading">
+            <el-main>
+                <el-form ref="form" :model="form" label-width="80px" :rules="rules">
+                    <el-col :span="10">
+                        <el-form-item label="年级" prop="grade">
+                            <el-radio v-model="form.grade" label="大一">大一</el-radio>
+                            <el-radio v-model="form.grade" label="大二">大二</el-radio>
+                            <el-radio v-model="form.grade" label="大三">大三</el-radio>
+                            <el-radio v-model="form.grade" label="大四">大四</el-radio>
+                        </el-form-item>
+                        <el-form-item label="学院" prop="college">
+                            <el-input v-model="form.college"></el-input>
+                        </el-form-item>
+                        <el-form-item label="专业" prop="major">
+                            <el-input v-model="form.major"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                                <el-button type="primary" @click="submitForm('form')">提交保存</el-button>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="商品列表" prop="selectedGoodsList">
+                            <el-button @click='showDialog()'>选择商品</el-button>
+                            <el-table :data="form.selectedGoodsList" :row-class-name="tableRowClassName">
+                                <el-table-column prop="goods_name" label="商品名称" width="150"></el-table-column>
+                                <el-table-column prop="goods_sn" label="货号" width="150"></el-table-column>
+                                <el-table-column prop="status_text" label="状态"></el-table-column>
+                                <el-table-column label="操作" width="80">
+                                    <template slot-scope="scope">
+                                        <el-button type="text" @click="unselect(scope.row)"><i class="el-icon-delete"></i></el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </el-form-item>
+                    </el-col>
+                </el-form>
+                <el-dialog title="选择商品" :visible.sync="dialogVisible" width="60%">
+                    <el-input placeholder="请输入商品名/货号" v-model="searchKeyword" clearable>
+                        <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
+                    </el-input>
+                    <el-table :data.sync="searchGoodsList" v-loading="searching" :row-class-name="tableRowClassName">
+                        <el-table-column prop="goods_name" label="商品名称" width="200" align="center"></el-table-column>
+                        <el-table-column prop="goods_sn" label="货号" width="180" align="center"></el-table-column>
+                        <el-table-column prop="status_text" label="状态" align="center"></el-table-column>
+                        <el-table-column prop="stock_qty" label="库存" align="center"></el-table-column>
+                        <el-table-column prop="now_price" label="售价" align="center"></el-table-column>
+                        <el-table-column label="操作" fixed="right">
+                            <template slot-scope="scope">
+                                <div v-if="scope.row.status > 0">
+                                    <el-button size="small" type="primary" v-if="scope.row.selected" @click="unselect(scope.row)">已选择</el-button>
+                                    <el-button size="small" v-else @click="select(scope.row)">选择</el-button>
+                                </div>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </el-dialog>
+            </el-main>
+        </el-container>
+    </div>
+</body>
+<!-- import Vue before Element -->
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script type="text/javascript" src="public/script/jquery.js"></script>
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                form: {
+                    grade: '',
+                    college: '',
+                    major: '',
+                    selectedGoodsList: []
+                },
+                rules: {
+                    grade: [
+                        { required: true, message: '请选择年级', trigger: 'change' },
+                    ],
+                    college: [
+                        { required: true, message: '请填写学院', trigger: 'blur' },
+                    ],
+                    major: [
+                        { required: true, message: '请填写专业', trigger: 'blur' },
+                    ],
+                    selectedGoodsList: [
+                        { required: true, message: '请选择商品', trigger: 'change' },
+                    ],
+                },
+                dialogVisible: false,
+                searchGoodsList: [],
+                searchKeyword: '',
+                goodsStatusMap: { '1': '上架', '0': '下架' },
+                searching: false,
+                fullscreenLoading: false
+            }
+        },
+        methods: {
+            tableRowClassName (row, rowIndex) {
+                if (row.status === '0') {
+                    return 'warning-row'
+                } else {
+                    return 'success-row'
+                }
+            },
+            showDialog () {
+                this.dialogVisible = true;
+            },
+            search () {
+                let that = this
+                var searchKeyword = this.searchKeyword
+                if (this.searchKeyword.trim() === '') {
+                    return
+                }
+                that.searching = true
+                $.ajax({
+                    url: "<{url m=$MOD c='goods' a='index' step='search'}>",
+                    method: 'get',
+                    data: { kw: searchKeyword },
+                    success: function (res) {
+                        res = JSON.parse(res)
+                        var list = []
+                        if (res.status === 'success') {
+                            list = res.list
+                            for (let index in list) {
+                                let goods = res.list[index]
+                                goods.status_text = that.goodsStatusMap[goods.status]
+                                goods.selected = (false !== that.findSelectedIndex(goods))
+                                list[index] = goods
+                            }
+                        }
+                        that.searchGoodsList = list
+                        that.searching = false
+                    }
+                })
+            },
+            //选择
+            select (goods) {
+                let searchGoodsList = this.searchGoodsList
+                for (let index in searchGoodsList) {
+                    let item = searchGoodsList[index]
+                    if (item.goods_id == goods.goods_id) {
+                        item.selected = true
+                        if (false === this.findSelectedIndex(item)) {
+                            this.form.selectedGoodsList.push(item)
+                        }
+                        break
+                    }
+                }
+                this.searchGoodsList = searchGoodsList
+            },
+            //取消选择
+            unselect (goods) {
+                var SelectedIndex = this.findSelectedIndex(goods)
+                if (false !== SelectedIndex) {
+                    this.form.selectedGoodsList.splice(SelectedIndex, 1)
+                }
+                let searchGoodsList = this.searchGoodsList
+                for (let index in searchGoodsList) {
+                    let item = searchGoodsList[index]
+                    if (item.goods_id == goods.goods_id) {
+                        item.selected = false
+                        break
+                    }
+                }
+                this.searchGoodsList = searchGoodsList
+            },
+            findSelectedIndex (goods) {
+                let selectedGoodsList = this.form.selectedGoodsList
+                for (let index in selectedGoodsList) {
+                    if (selectedGoodsList[index].goods_id === goods.goods_id) {
+                        return index
+                    }
+                }
+
+                return false
+            },
+            submitForm(formName) {
+                let that = this
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        let goods_ids = []
+                        that.form.selectedGoodsList.forEach(function(e) {
+                            goods_ids.push(e.goods_id)
+                        })
+                        $.ajax({
+                            url: "<{url m=$MOD c='book_order' a='edit' step='submit'}>",
+                            method: 'post',
+                            data: { 
+                                id: "<{$id}>",
+                                grade: that.form.grade,
+                                college: that.form.college,
+                                major: that.form.major, 
+                                goods_ids: goods_ids.join(',')
+                            },
+                            success: function (res) {
+                                var res = JSON.parse(res)
+                                that.$message({
+                                    message: res.msg,
+                                    type: res.status
+                                });
+                                setTimeout(() => {
+                                    window.location.href = "<{url m=$MOD c='book_order' a='list'}>"
+                                }, 500);
+                            }
+                        })
+                    } else {
+                        return false;
+                    }
+                });
+            }
+        },
+        mounted() {
+            let that = this
+            that.fullscreenLoading = true
+            $.ajax({
+                url: "<{url m=$MOD c='book_order' a='detail' id=$id}>",
+                method: 'get',
+                success: function (res) {
+                    res = JSON.parse(res)
+                    var form = that.form
+                    form.grade = res.grade
+                    form.college = res.college
+                    form.major = res.major
+                    for (let index in res.goods_list) {
+                        res.goods_list[index].status_text = that.goodsStatusMap[res.goods_list[index].status]
+                    }
+                    form.selectedGoodsList = res.goods_list
+                    that.fullscreenLoading = false
+                }
+            })
+        }
+    })
+</script>
+
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <{include file='backend/lib/meta.html'}>
+    <link rel="stylesheet" type="text/css" href="public/theme/backend/css/verydows.css" />
+    <link rel="stylesheet" type="text/css" href="public/theme/backend/css/main.css" />
+    <link rel="stylesheet" type="text/css" href="public/theme/backend/css/datetimepicker.css"/>
+    <script type="text/javascript" src="public/script/jquery.js"></script>
+    <script type="text/javascript" src="public/theme/backend/js/verydows.js"></script>
+    <script type="text/javascript" src="public/theme/backend/js/list.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <style type="text/css">
+        .require {
+            color: red;
+        }
+        .cen {
+            text-align: center;
+        }
+        .buy-limit {
+            display: inline-block;
+            margin-left: 10px;
+        }
+    </style>
+    <script type="text/javascript">
+        $(function(){
+            $('#start_at').datetimepicker({
+                format:'Y-m-d H:i:s',
+                formatDate:'Y-m-d H:i:s',
+                allowBlank:false,
+                onShow:function(ct){
+                    this.setOptions({minDate:"<{date('Y-m-d H:i:s')}>",maxDate:$('#end_at').val()? $('#end_at').val(): false});
+                },
+                timepicker:true,
+            });
+            $('#end_at').datetimepicker({
+                format:'Y-m-d H:i:s',
+                formatDate: 'Y-m-d H:i:s',
+                allowBlank:false,
+                onShow:function(ct){
+                    this.setOptions({minDate:$('#start_at').val()? $('#start_at').val():false})
+                },
+                timepicker:true
+            });
+        });
+    </script>
+</head>
+<body>
+<div class="content" id="app">
+    <div class="loc"><h2><i class="icon"></i>营销插件 / 秒杀 / 编辑</h2></div>
+    <div class="box">
+        <form method="post" action="<{url m=$MOD c='seckill' a='edit' id=$seckill.id}>">
+            <div class="module">
+                <table class="dataform">
+                    <tr>
+                        <th width="110"><span class="require">*</span>商品设置</th>
+                        <td width="110">
+                            商品id
+                        </td>
+                        <td width="110">
+                            秒杀价格
+                        </td>
+                        <td width="110">
+                            秒杀库存（独立）
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="110"></th>
+                        <td width="110">
+                            <input class="w150 txt"  type="number" name="goods_id" value="<{$seckill.goods_id}>" required/>
+                        </td>
+                        <td width="110">
+                            <input class="w150 txt" type="text" name="seckill_price" value="<{$seckill.seckill_price}>" required/>
+                        </td>
+                        <td width="110">
+                            <input class="w150 txt" type="number" name="seckill_stock_qty" value="<{$seckill.seckill_stock_qty}>" required/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="110"><span class="require">*</span>活动名称：</th>
+                        <td>
+                            <input class="txt w150" type="text" name="name" value="<{$seckill.name}>" required/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="110"><span class="require">*</span>开始时间：</th>
+                        <td>
+                            <input class="date w150 txt" id="start_at" type="text" name="start_at" value="<{$seckill.start_at}>" required/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="110"><span class="require">*</span>结束时间：</th>
+                        <td>
+                            <input class="date w150 txt" id="end_at" type="text" name="end_at" value="<{$seckill.end_at}>" required/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="110">每人限购：</th>
+                        <td>
+                            <input type="checkbox" v-model="is_buy_limit" name="is_buy_limit"/> 开启限购
+                            <template v-if="is_buy_limit">
+                                <div class="buy-limit">
+                                    每人限购 <input class="w50 txt cen" type="number" name="buy_limit_amount"
+                                                v-model="buy_limit_amount" required/> 件
+                                </div>
+                            </template>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="110"><span class="require">*</span>订单取消：</th>
+                        <td>
+                            买家 <input class="w50 txt cen"  type="number" name="order_cancel_minute" value="5"
+                                      value="<{$seckill.order_cancel_minute}>" required/> 分钟未支付订单，自动取消
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+        <div class="submitbtn">
+            <button class="ubtn btn submit" type="submit">确认保存</button>
+        </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+    new Vue({
+        el: '#app',
+        data: {
+            is_buy_limit : <{$seckill.is_buy_limit}> ,
+            buy_limit_amount : "<{$seckill.buy_limit_amount}>"
+        }
+    })
+</script>
+
+<script type="text/javascript" src="public/theme/backend/js/datetimepicker.js"></script>
+</body>
+</html>

@@ -6,5 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'alipay' => array($vendorDir . '/wtwei/alipay-sdk-php/src'),
+    'Pimple' => array($vendorDir . '/pimple/pimple/src'),
     'Kafka\\' => array($vendorDir . '/nmred/kafka-php/src'),
 );

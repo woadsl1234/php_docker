@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<{include file='backend/lib/meta.html'}>
+<link rel="stylesheet" type="text/css" href="public/theme/backend/css/verydows.css" />
+<link rel="stylesheet" type="text/css" href="public/theme/backend/css/main.css" />
+<link rel="stylesheet" type="text/css" href="public/theme/backend/css/stats.css" />
+<script type="text/javascript" src="public/script/jquery.js"></script>
+<script type="text/javascript" src="public/theme/backend/js/verydows.js"></script>
+<script type="text/javascript" src="public/theme/backend/js/flot.js"></script>
+  <script type="text/javascript" src="public/theme/backend/js/echarts.min.js"></script>
+<script type="text/javascript">
+$(function(){
+  selectYear();
+});
+
+function setChart(data){
+  var dataset = [];
+  $.each(data, function(k, v){
+    dataset.push([v.month+'月', v.revenue]);
+  });
+  $.plot('#column-chart .column', [dataset], {
+    series: {
+      bars: {show:true, barWidth:0.5, align:'center'}
+    },
+    xaxis: {mode:'categories', tickLength: 0,}
+  });
+}
+
+function showChart(year){
+  $.ajax({
+    type: "post",
+    dataType: "json",
+    url: "<{url m=$MOD c='stats' a='revenue' step='search'}>",
+    data: {'start_year':year},
+    success: function(res){
+        var myChart = echarts.init(document.getElementById('main'));
+        var lineData = [];
+        var barData = [];
+        var option;
+
+        var dataObj = res.data;
+        for(var key in dataObj){
+            barData.push(dataObj[key].revenue);
+            lineData.push(dataObj[key].month);
+        }
+
+        option = {
+            color: ['#3398DB'],
+            tooltip : {
+                trigger: 'axis',
+                axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+                    type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis : [
+                {
+                    type : 'category',
+                    data : lineData,
+                    axisTick: {
+                        alignWithLabel: true
+                    }
+                }
+            ],
+            yAxis : [
+                {
+                    type : 'value'
+                }
+            ],
+            series : [
+                {
+                    name:'营业额',
+                    type:'bar',
+                    barWidth: '60%',
+                    data:barData
+                }
+            ]
+        };
+
+        myChart.setOption(option);
+    }
+  });
+}
+
+function selectYear(){
+  var year = $('#start_year').val();
+  $('#chart-title').html('<b>'+year+'</b> 年度营收额统计分析');
+  showChart(year);
+}
+</script>
+</head>
+<body>
+<div class="content">
+  <div class="loc"><h2><i class="icon"></i>营收统计</h2></div>
+  <div class="box">
+    <div class="module">
+      <table class="datalist">
+        <tr>
+          <th width="150">日期</th>
+          <th class="ta-l">营收额</th>
+        </tr>
+        <{foreach $latest as $k => $v}>
+        <tr>
+          <td><h3 class="c777"><{$k}></h3></td>
+          <td class="red ta-l"><{if !empty($v.revenue)}><{$v.revenue}><{else}>0.00<{/if}></td>
+        </tr>
+        <{/foreach}>
+      </table>
+    </div>
+    <div class="bw-row mt5 pad10 ta-c cut">
+      <div id="main" style="width:100%;height:500px;"></div>
+      <div class="bw-row pad10 cut">
+        <label>
+          <font class="c888 mr5">选择年份</font>
+          <select class="slt" name="start_year" id="start_year">
+            <{html_date_options type="year" start_year="-10" default=$def_year}>
+          </select>
+        </label>
+        <button class="cbtn btn" type="button" onclick="selectYear()">查询</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

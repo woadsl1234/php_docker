@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <{include file='backend/lib/meta.html'}>
+  <link rel="stylesheet" type="text/css" href="public/theme/backend/css/verydows.css" />
+  <link rel="stylesheet" type="text/css" href="public/theme/backend/css/main.css" />
+  <link rel="stylesheet" type="text/css" href="public/theme/backend/css/stats.css" />
+  <link rel="stylesheet" type="text/css" href="public/theme/backend/css/datetimepicker.css"/>
+  <script type="text/javascript" src="public/script/jquery.js"></script>
+  <script type="text/javascript" src="public/theme/backend/js/verydows.js"></script>
+  <script type="text/javascript" src="public/theme/backend/js/flot.js"></script>
+  <script type="text/javascript" src="public/theme/backend/js/echarts.min.js"></script>
+  <script type="text/javascript" src="public/script/juicer.js"></script>
+  <script type="text/javascript">
+      $(function(){
+          showChart('<{date("Y-m-d")}>', "<{date('Y-m-d', strtotime('tomorrow'))}>");
+
+          $('#preset-btn button').click(function(){
+              if(!$(this).hasClass('disabled')) {
+                  $('#preset-btn button.disabled').removeClass('disabled');
+                  $(this).addClass('disabled').blur();
+                  showChart($(this).data('start'), "<{date('Y-m-d', strtotime('tomorrow'))}>");
+              }
+          })
+
+          //日期选择
+          $('#start_date').datetimepicker ({
+              format:'Y-m-d',
+              formatDate: 'Y-m-d',
+              allowBlank:true,
+              onShow:function(ct){
+                  this.setOptions({maxDate:$('#end_date').val()? $('#end_date').val():false})
+              }, timepicker:false
+          });
+          $('#end_date').datetimepicker ({
+              format:'Y-m-d',
+              formatDate: 'Y-m-d',
+              allowBlank:true,
+              onShow:function(ct){
+                  this.setOptions({minDate:$('#start_date').val()? $('#start_date').val():false})
+              }, timepicker:false
+          });
+      });
+
+      function showChart(start, end){
+          $.ajax({
+              type: "get",
+              dataType: "json",
+              url: "<{url m=$MOD c='goods' a='purchase' step='chart'}>",
+              data: {'start_date':start, 'end_date' : end},
+              success: function(res){
+                  showTable(res.data);
+
+                  var myChart = echarts.init(document.getElementById('main'));
+                  var lineData = [];
+                  var barData = [];
+                  var option;
+
+                  var dataObj = res.data.slice(0, 10);
+                  for(var key in dataObj){
+                      barData.push(dataObj[key].amount);
+                      lineData.push(dataObj[key].goods_name);
+                  }
+
+                  option = {
+                      color: ['#3398DB'],
+                      tooltip : {
+                          trigger: 'axis',
+                          axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+                              type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                          }
+                      },
+                      grid: {
+                          left: '3%',
+                          right: '4%',
+                          bottom: '3%',
+                          containLabel: true
+                      },
+                      xAxis : [
+                          {
+                              type : 'category',
+                              data : lineData,
+                              axisTick: {
+                                  alignWithLabel: true
+                              }
+                          }
+                      ],
+                      yAxis : [
+                          {
+                              type : 'value'
+                          }
+                      ],
+                      series : [
+                          {
+                              name:'进货数',
+                              type:'bar',
+                              barWidth: '60%',
+                              data:barData
+                          }
+                      ]
+                  };
+
+                  myChart.setOption(option);
+              }
+          });
+      }
+
+      function showTable(data) {
+          console.log(data);
+          $(".datalist").html(juicer($("#record-list-tpl").html(), {"list":data}));
+      }
+
+      function selectDate(){
+          var start = $('#start_date').val(), end = $('#end_date').val();
+          showChart(start, end);
+      }
+  </script>
+</head>
+<body>
+<div class="content">
+  <div class="loc"><h2><i class="icon"></i>进货列表</h2></div>
+  <div class="box">
+    <div class="module">
+      <div class="bw-row pad10 cut">
+        <div class="chart-btnopt ta-l fl cut" id="preset-btn">
+          <button type="button" class="cbtn btn" data-start="<{date('Y-m-d', $todaystamp - 86400 * 7)}>">最近7日</button>
+          <span class="sep20"></span>
+          <button type="button" class="cbtn btn" data-start="<{date('Y-m-d', $todaystamp - 86400 * 15)}>">最近15日</button>
+          <span class="sep20"></span>
+          <button type="button" class="cbtn btn" data-start="<{date('Y-m-d', $todaystamp - 86400 * 30)}>">最近1个月</button>
+          <span class="sep20"></span>
+          <button type="button" class="cbtn btn" data-start="<{date('Y-m-d', $todaystamp - 86400 * 90)}>">最近3个月</button>
+        </div>
+        <div class="chart-dateopt ta-r fr cut">
+          <label><font class="c888 mr5">开始日期</font><input title="开始日期" value="" class="date w100 txt"name="start_date" id="start_date" type="text" /></label>
+          <span class="sep10"></span>
+          <label><font class="c888 mr5">截止日期</font><input title="截止日期" value="" class="date w100 txt"name="end_date" id="end_date" type="text" /></label>
+          <button class="cbtn btn" type="button" onclick="selectDate()">查询</button>
+        </div>
+      </div>
+      <div id="main" style="width:100%;height:400px;"></div>
+      <table class="datalist">
+      </table>
+    </div>
+  </div>
+</div>
+<script type="text/template" id="record-list-tpl">
+  <tr>
+    <th class="ta-l">商品名称</th>
+    <th width="150">货号</th>
+    <th width="130">价格 <font class='c999'>(元)</font></th>
+    <th width="100">预定数</th>
+  </tr>
+  {@each list as v}
+  <tr>
+    <td class="ta-l">
+      <a class="blue" href="index.php?m=<{$MOD}>&c=goods&a=edit&id=${v.goods_id}" target="_blank">${v.goods_name}</a>
+    </td>
+    <td>${v.goods_sn}</td>
+    <td class="red">${v.now_price}</td>
+    <td>${v.amount}</td>
+  </tr>
+  {@/each}
+</script>
+<script type="text/javascript" src="public/theme/backend/js/datetimepicker.js"></script>
+</body>
+</html>

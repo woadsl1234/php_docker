@@ -1,0 +1,84 @@
+<div class="imul impoper cut hide" id="imulpoper">
+  <a class="close"></a>
+  <div class="th"><font class="c888">上传图片</font></div>
+  <div class="imuler cut">
+    <div class="imulqu"><ul></ul></div>
+    <div class="picker ta-c mt15" id="pickfiles"><a id="imuler-picker"></a><p class="f14 caaa mt15">点击选择你要上传的图片</p></div>
+  </div>
+  <div class="bom ta-c mt5 hide"><a class="fbtn btn">开始上传</a></div>
+</div>
+<div class="imsli impoper cut" id="imlipoper">
+  <a class="close"></a>
+  <!--<div class="th"><font class="c888">选择图库文件</font></div>-->
+  <div class="lister cut"><div class="rows module cut"></div></div>
+  <div class="bom ta-c mt5 hide"><a class="fbtn btn">确 定</a></div>
+</div>
+<script type="text/javascript">
+  $(function () {
+    var uploader = Qiniu.uploader({
+      runtimes: 'html5,flash,html4',      // 上传模式，依次退化
+      browse_button: 'pickfiles',         // 上传选择的点选按钮，必需
+      uptoken_url: "<{url m=$MOD c='goods' a='image' step='upload'}>",         //
+      get_new_uptoken: false,             // 设置上传文件的时候是否每次都重新获取新的uptoken
+      unique_names: true,              // 默认false，key为文件名。若开启该选项，JS-SDK会为每个文件自动生成key（文件名）
+      save_key: false,                  // 默认false。若在服务端生成uptoken的上传策略中指定了sava_key，则开启，SDK在前端将不对key进行任何处理
+      domain: 'flea',     // bucket域名，下载资源时用到，必需
+      max_file_size: '10mb',             // 最大文件体积限制
+      max_retries: 0,                     // 上传失败最大重试次数
+      auto_start: true,                   // 选择文件后自动上传，若关闭需要自己绑定事件触发上传
+      init: {
+        'UploadProgress': function (up, file) {
+
+        },
+        'FileUploaded': function (up, file, info) {
+          var domain = up.getOption('domain');
+          var sourceLink = "https://image.tiaozaoj.com" + "/" + file.target_name+"?imageView2/0/w/80/h/80/interlace/1/q/100";
+          $(".picker").css("background-image","url("+sourceLink+")");
+          showGim(sourceLink, file.target_name);
+          $(".caaa").html("重新上传");
+        },
+        'Error': function (up, err, errTip) {
+          //上传出错时，处理相关的事情
+          alert("上传出错");
+        },
+        'UploadComplete': function () {
+
+        },
+        'Key': function (up, file) {
+          // 若想在前端对每个文件的key进行个性化处理，可以配置该函数
+          // 该配置必须要在unique_names: false，save_key: false时才生效
+          console.log(file);
+          var key = file.name;
+          return key
+        }
+      }
+    });
+  })
+
+  function popUploadImg() {
+    $.vdsMasker(true);
+    $('#imulpoper').vdsMidst({wrapper: $(window), gotop: -100}).show().find('a.close').on('click', function () {
+      closeImgUploadPoper();
+    });
+  }
+
+  var closeImgUploadPoper = function(){
+    $.vdsMasker(false);
+    $('#imulpoper').hide().find('.imulqu ul').empty();
+    $('#imulpoper .picker').show();
+    $('#imulpoper .bom').hide().find('a').text('开始上传').off();
+  }
+
+  function showGim(src, img_name){
+    $('#gim').show().find('img').attr('src', src).next('i').on('click', function(){
+      $('#gim').hide().find('img').attr('src', '');
+      $('#gimbtns').show();
+      $('#gim input[name="goods_image"]').val('');
+    });
+    $('#gim input[name="goods_image"]').val(img_name);
+    $('#gimbtns').hide();
+  }
+
+</script>
+<{include file='backend/lib/paging.html'}>
+<script type="text/javascript" src="public/script/juicer.js"></script>

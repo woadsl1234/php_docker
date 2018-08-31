@@ -1,0 +1,387 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <{include file='mobile/default/lib/meta.html'}>
+    <title>确认订单 - <{$GLOBALS.cfg.site_name}></title>
+    <link rel="stylesheet" type="text/css" href="<{$common.theme}>/css/general.css"/>
+    <link rel="stylesheet" type="text/css" href="<{$common.theme}>/iconfont/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="<{$common.theme}>/css/order.css"/>
+    <script type="text/javascript" src="<{$common.theme}>/js/zepto.min.js"></script>
+    <script type="text/javascript" src="<{$common.theme}>/js/verydows.mobile.js"></script>
+    <script type="text/javascript" src="<{$common.theme}>/js/order.js"></script>
+    <script type="text/javascript" src="<{$common.theme}>/js/consignee.js"></script>
+    <script type="text/javascript">
+        var freightApi = "<{url c='api/order' a='freight'}>", areaApi = "<{url c='api/area' a='children'}>";
+        var full_cut_list = JSON.parse('<{json_encode($full_cut.list)}>');
+
+        $(function () {
+            getFreight();
+        });
+        var buildings = new Array(
+            ["2","3","4南","4北","5南","5北","6南","6北","8","10南","10北","11南","11北","12南","12北","13","14","15","16",//杭州电子科技大学
+                "18","21","22","27","28","29","30","31","32东","32西","研究生公寓","其他"],
+            ["L楼","1","12","13","14","16","17","18","19","20","21","S楼A区","S楼B区","S楼C区","S楼D区","其他"],//浙江传媒学院
+            ["1东","1西","2东","2西","3南","3北","4东","4西","5南","5北","6东","6西","7南","7北","8东","8西","9南","9北",
+                    "10南","10北","11南","11北","13","其他"],//中国计量大学
+            ["一区1","一区2","一区3南","一区3北","一区4南","一区4北","二区2东","二区2西","二区4南","二区4北","二区5南","二区5北"
+                    ,"二区6南","二区6北","二区12", "三区1西","三区1东","三区3西","三区3东","三区7","三区8","三区9","三区10","三区11","其他"]//浙江理工大学
+        );
+        
+        function showBuildings(school_index) {
+            if (!school_index) {
+                school_index =$("select[name=school] option").not(function(){ return !this.selected }).val();
+            }
+            if (school_index) {
+                building_list = buildings[school_index-1];
+                var options = "";
+                for (var i = 0;i < building_list.length;i++) {
+                    options += "<option>" + building_list[i] + "</option>";
+                }
+                $("select[name=building]").html(options);
+            }
+        }
+
+        function replace_mobile() {
+            var form = $('#csnform form');
+            form.find('input[name="mobile"]').val($('#user_mobile').html());
+            $('.fill-info').remove();
+        }
+
+        function submitOrder() {
+            var csn_id = $('#consignee h4').data('id') || false;
+            if (!csn_id) {
+                $.vdsPrompt({content: '您必须先创建一个收货地址'});
+                return false;
+            }
+            $.asynInter("<{url c='api/order' a='submit'}>", {
+                csn_id: csn_id,
+                shipping_id: $('#shipping_method').val(),
+                memos: $('#memos').val()
+            }, function (res) {
+                if (res.status == 'success') {
+                    var target = "<{url c='mobile/pay' a='index' order_id='$replace'}>";
+                    window.location.href = target.replace('$replace', res.order_id);
+                } else {
+                    $.vdsPrompt({content: res.msg});
+                }
+            });
+        }
+    </script>
+    <style>
+        .hide {
+            display: none;
+        }
+
+        .desc {
+            color: #888;
+        }
+
+        .fill-info {
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .show-desc {
+            display: inline-block;
+        }
+
+        .fill-info #fill-mobile {
+            color: #ff850b;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper" id="wrapper">
+    <!-- header start -->
+    <div class="header">
+        <div class="op lt"><a href="javascript:history.back(-1)"><i class="f20 iconfont">&#xe602;</i></a></div>
+        <h2>确认订单</h2>
+    </div>
+    <!-- header end -->
+    <div class="confirm">
+        <div class="row" id="consignee">
+            <div class="lc">收件人</div>
+            <{if !empty($consignee_list[0])}>
+            <div class="rc" onclick="popCsnList()">
+                <div class="unfold fr"><i class="iconfont">&#xe614;</i></div>
+                <h4 class="c888" data-id="<{$consignee_list[0].id}>"><{$consignee_list[0].receiver}><span class="ml10"><{$consignee_list[0].mobile}></span>
+                </h4>
+                <p class="mt5 c888"><{$consignee_list[0].address}><{if !empty($consignee_list[0].zip)}><br/><{$consignee_list[0].zip}><{/if}>
+                </p>
+            </div>
+            <{else}>
+            <div class="rc" onclick="popCsnList()"><a class="add" onclick="addCsn()">+ 添加收件人</a></div>
+            <{/if}>
+        </div>
+        <div class="row">
+            <div class="lc">配送方式</div>
+            <div class="rc">
+                <div class="vslt">
+                    <select id="shipping_method" onchange="getFreight()">
+                        <{foreach $shipping_list as $v}>
+                        <{if $v['enable'] == 1}>
+                            <option value="<{$v.id}>"
+                            <{if $v@first == true}> selected="selected"<{/if}>><{$v.name}></option>
+                        <{/if}>
+                        <{/foreach}>
+                    </select>
+                    <span><i class="iconfont">&#xe615;</i></span>
+                </div>
+            </div>
+            <div class="lc"></div>
+            <div class="rc desc">
+                <{foreach $shipping_list as $v}>
+                <span id="ins-<{$v.id}>" class="hide <{if $v@first == true}> show-desc<{/if}>"><{$v.instruction}></span>
+                <{/foreach}>
+            </div>
+        </div>
+        <div class="parcel row" id="parcel">
+            <div class="lc">包裹清单</div>
+            <div class="rc">
+                <ul class="gli" id="gli">
+                    <{if !empty($cart.shortAgeItems)}>
+                        <li id="shortage-title">以下商品库存不足，请返回购物车修改或移除再下单</li>
+                        <{foreach $cart.shortAgeItems as $v}>
+                        <li class="shortAge">
+                            <div class="im"><img alt="<{$v.goods_name}>"
+                                                 src="<{$GLOBALS['cfg']['image_host'].$v.goods_image.$GLOBALS['cfg']['image_style']['small']}>"/>
+                            </div>
+                            <div class="info">
+                                <p class="name c888"><{$v.goods_name}></p>
+                                <{if !empty($v.opts)}>
+                                <p class="opts mt5"><{foreach $v.opts as $o}><span class="mr5">[<{$o.type}>: <font><{$o.opt_text}></font>]</span><{/foreach}>
+                                </p>
+                                <{/if}>
+                                <p class="subtotal mt5 c666"><span class="price mr10"><i class="cny">¥</i><font class="f14"><{$v.now_price}></font></span>×<span
+                                        class="q"><{$v.qty}></span></p>
+                            </div>
+                        </li>
+                        <{/foreach}>
+                    <{/if}>
+                    <{foreach $cart.items as $v}>
+                    <li>
+                        <div class="im"><img alt="<{$v.goods_name}>"
+                                             src="<{$GLOBALS['cfg']['image_host'].$v.goods_image.$GLOBALS['cfg']['image_style']['small']}>"/>
+                        </div>
+                        <div class="info">
+                            <p class="name c888"><{$v.goods_name}></p>
+                            <{if !empty($v.opts)}>
+                            <p class="opts mt5"><{foreach $v.opts as $o}><span class="mr5">[<{$o.type}>: <font><{$o.opt_text}></font>]</span><{/foreach}>
+                            </p>
+                            <{/if}>
+                            <p class="subtotal mt5 c666"><span class="price mr10"><i class="cny">¥</i><font class="f14"><{$v.now_price}></font></span>×<span
+                                    class="q"><{$v.qty}></span></p>
+                        </div>
+                    </li>
+                    <{/foreach}>
+                </ul>
+            </div>
+        </div>
+        <div class="memos row">
+            <div class="lc">留言备注</div>
+            <div class="rc"><textarea name="memos" class="vtextarea" id="memos"
+                                      placeholder="填写您对新旧、笔记、送达时间等特殊要求，没有则留空"></textarea></div>
+        </div>
+        <div class="amount">
+            <h3 class="f14 center">订单合计</h3>
+            <dl>
+                <dt class="f14">商品合计</dt>
+                <dd class="c666"><i class="cny">¥</i><font class="f14" id="goods-amount"><{$cart.amount}></font></dd>
+            </dl>
+            <dl>
+                <dt class="f14">配送费</dt>
+                <dd class="c666"><i class="cny">¥</i><font class="f14" id="shipping-amount">0.00</font></dd>
+            </dl>
+            <{if !empty($full_cut.list)}>
+            <dl id="full_cut">
+            </dl>
+            <{/if}>
+        </div>
+
+        <div class="buttons-pay-flex">
+            <div class="sum-cost-block">
+                <div class="sum-cost-wrap">
+                    <div class="sum-cost-inner">
+                        <div class="sum-cost-price zui-c-red">￥<span id="total-amount"><{$cart.amount}></span></div>
+                    </div>
+                    <div class="sum-discount-inner">| 已优惠 ￥<span id="discount_fee">0.00</span></div>
+                </div>
+            </div>
+            <div class="submit" onClick="submitOrder()">提交订单</div>
+        </div>
+    </div>
+</div>
+<!-- 收件人列表开始 -->
+<div class="csnli poper hide" id="csnli">
+    <div class="header">
+        <div class="op lt"><a onclick="hideCsnList()"><i class="f20 iconfont">&#xe602;</i></a></div>
+        <h2>选择收件人</h2>
+    </div>
+    <div class="opts module">
+        <{if !empty($consignee_list)}>
+        <{foreach $consignee_list as $v}>
+        <dl id="csnopt-<{$v.id}>"
+        <{if $v@first == true}> class="checked"<{/if}>>
+        <dd class="l" onclick="onChangeCsn(this)"><i class="iconfont">&#xe61a;</i></dd>
+        <dd class="r" data-json='<{$v.json}>' onclick="editCsn(this)"><i class="iconfont">&#xe617;</i></dd>
+        <dd class="m">
+            <h4 class="c666" data-id="<{$v.id}>"><{$v.receiver}><span class="ml10"><{$v.mobile}></span></h4>
+            <p class="mt5 c888"><{$v.address}><{if !empty($v.zip)}><br/><{$v.zip}><{/if}></p>
+        </dd>
+        </dl>
+        <{/foreach}>
+        <{else}>
+        <div class="empty-address">您暂未添加任何收件人</div>
+        <{/if}>
+        <a class="add" onclick="addCsn()">+ 添加收件人</a>
+    </div>
+</div>
+<!-- 收件人列表结束 -->
+<!-- 收件人表单开始 -->
+<div class="csnform hide" id="csnform">
+    <div class="header">
+        <div class="op lt"><a onclick="hideCsnForm()"><i class="f20 iconfont">&#xe602;</i></a></div>
+        <h2>收件人</h2>
+    </div>
+    <form>
+        <div class="main cut"></div>
+    </form>
+    <a class="submit act xauto mt15" onclick="saveCsnForm('<{url c='api/consignee' a='save'}>')">保 存</a>
+</div>
+<!-- 收件人表单结束 -->
+<script type="text/template" id="csn-row-tpl">
+    <dl id="csnopt-${id}" {@if checked== 1} class="checked" {@/if}>
+    <dd class="l" onclick="onChangeCsn(this)"><i class="iconfont">&#xe61a;</i></dd>
+    <dd class="r" data-json='${json}' onclick="editCsn(this)"><i class="iconfont">&#xe617;</i></dd>
+    <dd class="m">
+        <h4 class="c666" data-id="${id}">${receiver}<span class="ml10">${mobile}</span></h4>
+        <p class="mt5 c888">${address}{@if zip != ''}<br/>${zip}{@/if}</p>
+    </dd>
+    </dl>
+</script>
+<script type="text/template" id="csn-form-tpl">
+    <input type="hidden" name="id" value="0"/>
+    <dl>
+        <dt>选择学校</dt>
+        <dd>
+            <div class="vslt">
+                <select name="school" id="areaslt-school" data-type="school" onchange="showBuildings()">
+                    <{if !empty($school_list)}>
+                    <{foreach $school_list as $v}>
+                    <option value="<{$v['id']}>"><{$v['name']}></option>
+                    <{/foreach}>
+                    <{/if}>
+                </select>
+                <span><i class="iconfont">&#xe615;</i></span>
+            </div>
+        </dd>
+    </dl>
+    <dl>
+        <dt>楼号</dt>
+        <dd>
+            <div class="vslt">
+                <select name="building">
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4南</option>
+                    <option>4北</option>
+                    <option>5南</option>
+                    <option>5北</option>
+                    <option>6南</option>
+                    <option>6北</option>
+                    <option>8</option>
+                    <option>10南</option>
+                    <option>10北</option>
+                    <option>11南</option>
+                    <option>11北</option>
+                    <option>12南</option>
+                    <option>12北</option>
+                    <option>13</option>
+                    <option>14</option>
+                    <option>15</option>
+                    <option>16</option>
+                    <option>18</option>
+                    <option>21</option>
+                    <option>22</option>
+                    <option>27</option>
+                    <option>28</option>
+                    <option>29</option>
+                    <option>30</option>
+                    <option>31</option>
+                    <option>32东</option>
+                    <option>32西</option>
+                    <option>其他</option>
+                </select>
+                <span><i class="iconfont">&#xe615;</i></span>
+            </div>
+        </dd>
+    </dl>
+    <dl>
+        <dt>房间号</dt>
+        <dd><input name="room" class="vinput" placeholder="如110"></input></dd>
+    </dl>
+    <dl>
+        <dt>收件人</dt>
+        <dd><input name="receiver" type="text" class="vinput"></dd>
+    </dl>
+    <dl>
+        <dt>手机号码</dt>
+        <dd>
+            <input name="mobile" type="number" pattern="[0-9]*" class="vinput" placeholder="收件人手机号">
+            <{if $user['mobile']}>
+            <div class="fill-info">
+                您注册的手机号为<span id="user_mobile"><{$user['mobile']}></span>
+                <span id="fill-mobile" onclick="replace_mobile()">填充</span>
+            </div>
+            <{/if}>
+        </dd>
+    </dl>
+    <dl style="display: none">
+        <dt>选择省份</dt>
+        <dd>
+            <div class="vslt">
+                <select name="province" id="areaslt-province" data-type="province">
+                    <option value="11" selected>浙江省</option>
+                </select>
+                <span><i class="iconfont">&#xe615;</i></span>
+            </div>
+        </dd>
+    </dl>
+    <dl style="display: none">
+        <dt>选择城市</dt>
+        <dd>
+            <div class="vslt">
+                <select name="city" id="areaslt-city">
+                    <option value="1" selected>杭州市</option>
+                </select>
+                <span><i class="iconfont">&#xe615;</i></span>
+            </div>
+        </dd>
+    </dl>
+    <dl style="display: none">
+        <dt>选择区/县</dt>
+        <dd>
+            <div class="vslt">
+                <select name="borough" id="areaslt-borough">
+                    <option value="3" selected>江干区</option>
+                </select>
+                <span><i class="iconfont">&#xe615;</i></span>
+            </div>
+        </dd>
+    </dl>
+
+    <dl style="display:none">
+        <dt>邮编</dt>
+        <dd><input name="zip" type="number" pattern="[0-9]*" class="vinput" value="310018"></dd>
+    </dl>
+</script>
+<script type="text/template" id="csn-checked-tpl">
+    <div class="unfold fr"><i class="iconfont">&#xe614;</i></div>
+    <h4 class="c666" data-id="${id}">${receiver}<span class="ml10">${mobile}</span></h4>
+    <p class="mt5 c888">${address}{@if zip != ''}<br/>${zip}{@/if}</p>
+</script>
+<script type="text/javascript" src="<{$common.baseurl}>/public/script/juicer.js"></script>
+<{include file='mobile/default/lib/footer.html'}>
+</body>
+</html>

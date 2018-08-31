@@ -1,0 +1,153 @@
+/*添加保单样式*/
+.anniu {
+	margin: 0 auto;
+	text-align: center;
+}
+.Btnbutton{
+	color: #333;
+	display: inline-block;
+	margin: 0.5% 3.5%;
+	padding: 2% 0;
+	font-size: 14px;
+	border-bottom: 2px solid transparent;
+	white-space:nowrap;
+	width: 25%;
+}
+.regUseCurr{
+	color: #ff850b;
+	border-bottom: 2px solid #ff850b;
+}
+
+.Btnbutton span{
+	display: block;
+	width: 35%;
+	line-height: 2.4rem;
+	margin: 0 auto;
+	text-align: center;
+	color: #fff;
+}
+.Btnbutton span:before{
+	margin-top: 2%;
+	float: left;
+	color: #fff;
+}
+.baodanall{
+	background: #fff;
+	overflow: hidden;
+	padding: 5px;
+}
+.addbaodan{
+	width: 95%;
+	margin: 0 auto;
+	overflow: hidden;
+}
+.addbaodan h3{
+    display: block;
+    color: #009b63;
+    font-size: 1rem;
+    float: left;
+    margin-left: 3%;
+    margin-top: 3%;
+    margin-bottom: 3%;
+    overflow: hidden;
+}
+.addbaodan h3:after{
+	content: "";
+	display: block;
+	width: 0.2rem;
+	height: 1.2rem;
+	border-radius: 0.5rem;
+	background:#009b63 ;
+    float: left;
+    margin: 0.1rem 0.5rem 0 0;
+}
+/*表单样式*/
+.baodaninfo{
+	width: 90%;
+	margin: 2% auto;
+}
+.baodan{
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	line-height: 2rem;
+}
+.baodan label{
+	width: 30%;
+	display: block;
+	text-align: left;
+	margin-left: 3%;
+	float: left;
+}
+html{
+	font-size:20px;
+}
+
+.goods_card{
+	margin: 2px 2px;
+	width: 50%;
+	width: calc(50% - 4px);
+	height: 11rem;
+	background: #fff;
+	float: left;
+	padding: 10px 0 0px;
+}
+.img-container{
+	width: 9.0rem;
+    height: 8.0rem;
+    display: table-cell;
+    vertical-align: middle;
+    position: relative;
+}
+.img-container>img{
+	max-height: 100%;
+    max-width: 100%;
+    vertical-align: middle;
+    display: table-cell;
+    margin: 0 auto;
+}
+.baodanall{
+	background: #eee;
+}
+.name{
+	display: block;
+    font-size: 0.7rem;
+    position: relative;
+    margin-top: 0.25rem;
+    padding-left: 0.5rem;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+.price{
+	padding-left: 0.5rem;
+}
+.sell-price{
+	font-size: 0.9rem !important;
+	color: #ff850b;
+}
+.original-price{
+	font-size: 0.6rem;
+	color: #b5b5b5;
+	margin-left: 3px;
+}
+.is-full{
+	display: none;
+}
+.has-selled,.pre-sell {
+	position: relative;
+	margin-top: -25px;
+	line-height: 25px;
+	height: 25px;
+	width: 100%;
+	color: #fff;
+	filter: progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr='#99000000', endColorstr='#99000000');
+	background: rgba(0,0,0,.6);
+	text-align: center;
+}
+.pre-sell {
+	color: #fff;
+	background: rgba(252,71,102,0.8);
+}
+
+.swiper-slide{height:0px!important;}
+.swiper-slide-active{height:auto!important;}

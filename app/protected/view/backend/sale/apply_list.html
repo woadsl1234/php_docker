@@ -1,0 +1,292 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <{include file='backend/lib/meta.html'}>
+    <link rel="stylesheet" type="text/css" href="public/theme/backend/css/verydows.css" />
+    <link rel="stylesheet" type="text/css" href="public/theme/backend/css/main.css" />
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script type="text/javascript" src="public/script/jquery.js"></script>
+    <script type="text/javascript" src="public/theme/backend/js/verydows.js"></script>
+</head>
+<body>
+<div class="content" id='app'>
+    <div class="loc"><h2><i class="icon"></i>列表</h2></div>
+    <div class="stools mt5">
+        <el-select v-model="selectedStatus" placeholder="选择状态">
+            <el-option
+                v-for="item in statusMap"
+                :key="item.id"
+                :label="item.value"
+                :value="item.id">
+            </el-option>
+        </el-select>
+        <el-button type="primary" size="small" @click="fliter">筛选</el-button>
+    </div>
+    <div class="box">
+        <el-table
+            :data="applyList"
+            style="width: 100%;" 
+            border
+            v-loading="loading">
+            <el-table-column prop="id" label="编号" width="80" align="center"></el-table-column>
+            <el-table-column prop="way" label="类型" width="80" align="center"></el-table-column>
+            <el-table-column prop="time" label="时间" width="100" align="center"></el-table-column>
+            <el-table-column prop="account" label="支付宝" align="center"></el-table-column>
+            <el-table-column label="地址" width="200" header-align="center">
+                <template slot-scope="scope">
+                    {{ scope.row.receiver }} ( <span style="font-weight:bold">{{ scope.row.mobile }}</span> )
+                     {{ scope.row.address }}
+                </template>
+            </el-table-column>
+            <el-table-column label="商品" align="center" width="80">
+                <template slot-scope="scope">
+                    <el-button type="text" @click="view(scope.row)" v-loading.fullscreen.lock="fullscreenLoading">查看</el-button>
+                </template>
+            </el-table-column>
+            <el-table-column prop="statusText" label="状态" align="center"></el-table-column>
+            <el-table-column prop="name" label="受理人" align="center"></el-table-column>
+            <el-table-column label="操作" align="center" width="150">
+                <template slot-scope="scope">
+                    <div v-if="scope.row.status == 1">
+                        <el-popover
+                            placement="left"
+                            width="160"
+                            v-model="scope.row.visible">
+                            <el-select v-model="recycleUserId" placeholder="选择受理人">
+                                <el-option
+                                  v-for="item in options"
+                                  :key="item.id"
+                                  :label="item.name"
+                                  :value="item.id">
+                                </el-option>
+                            </el-select>
+                            <div style="text-align: right; margin-top: 15px">
+                                <el-button type="primary" size="mini" @click="accept(scope)" :loading="scope.row.accepting">确定</el-button>
+                            </div>
+                            <el-button slot="reference" type="text">受理</el-button>
+                        </el-popover>
+                        <el-button type="text" @click="reject(scope.row)">拒绝</el-button>
+                    </div>
+                    <div v-else-if="scope.row.status == 2" >
+                        <el-button type="text" @click="putway(scope)" :loading="scope.row.putwaying">上架</el-button>
+                        <el-button type="text" @click="cancel(scope)" :loading="scope.row.canceling">撤销受理</el-button>
+                    </div>
+                </template>
+            </el-table-column>
+        </el-table>
+
+        <el-dialog :visible.sync="dialogTableVisible" width="80%">
+            <div slot="title">
+                <span class="el-dialog__title">共计 {{ goodsTotal }} 本</span>
+            </div>
+            <el-table :data="goodsList">
+                <el-table-column prop="goods_id" label="编号" width="80" align="center"></el-table-column>
+                <el-table-column label="图片" width="100" align="center">
+                    <template slot-scope="scope">
+                        <a :href="scope.row.goods_image" target="_blank">
+                            <img :src="scope.row.goods_image" width="40" height="40" alt="图片">
+                        </a>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="goods_name" label="商品名" width="250" align="center"></el-table-column>
+                <el-table-column prop="qty" label="数量" width="80" align="center"></el-table-column>
+                <el-table-column prop="goods_sn" label="ISBN" width="200" align="center"></el-table-column>
+                <el-table-column prop="original_price" label="定价" align="center"></el-table-column>
+            </el-table>
+        </el-dialog>
+    </div>
+</div>
+
+<{include file='backend/sale/goods_list.html'}>
+</body>
+  <!-- import Vue before Element -->
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <!-- import JavaScript -->
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <script>
+    new Vue({
+        el: '#app',
+        data: function() {
+            return {
+                loading: true,
+                dialogTableVisible: false,
+                fullscreenLoading: false,
+                options: [],
+                recycleUserId: '',
+                statusMap: [
+                    {
+                        id: 0,
+                        value: '被拒绝'
+                    },{
+                        id: 1,
+                        value: '待受理'
+                    },{
+                        id: 2,
+                        value: '待上架'
+                    },{
+                        id: 3,
+                        value: '已上架'
+                    }
+                ],
+                ways: {'1': '以旧换新', '2': '书籍帮卖'},
+                selectedStatus: '',
+                applyList: [],
+                goodsList: []
+            }
+        },
+        computed: {
+            goodsTotal: function () {
+                var total = 0;
+                for (let goods of this.goodsList) {
+                    total += goods.qty
+                }
+                return total
+            }
+        },
+        mounted: function() {
+            let that = this;
+            $.ajax({
+                'url' : "<{url m=$MOD c='sale' a='accept_users'}>",
+                "success" : function (res) {
+                    that.options = JSON.parse(res);
+                }
+            })
+            this.showList()
+        },
+        methods: {
+            accept: function (scope) {
+                if (!this.recycleUserId) {
+                    return
+                }
+                let that = this
+                var apply = scope.row
+                apply.accepting = true
+                this.applyList.splice(scope.$index, 1, apply)
+                $.ajax({
+                    'url' : "<{url m=$MOD c='sale' a='pass'}>",
+                    'method' : 'post',
+                    'data': {
+                        id: apply.id,
+                        recycle_user_id: this.recycleUserId
+                    },
+                    'dataType' : 'json',
+                    "success" : function (res) {
+                        that.showList(that.selectedStatus)
+                        that.recycleUserId = ''
+                        that.$message({
+                            message: res.status,
+                            type: 'success'
+                        });
+                    }
+                })
+            },
+            reject: function (apply) {
+                let that = this
+                $.ajax({
+                    'url' : "<{url m=$MOD c='sale' a='reject'}>",
+                    'method' : 'post',
+                    'data': {
+                        id: apply.id
+                    },
+                    "success" : function (res) {
+                        res = JSON.parse(res)
+                        that.showList(that.selectedStatus)
+                        that.$message({
+                            message: res.status,
+                            type: 'success'
+                        });
+                    }
+                })
+            },
+            fliter: function () {
+                this.showList(this.selectedStatus)
+            },
+            showList: function (status) {
+                let that = this;
+                that.loading = true
+                $.ajax({
+                    'url' : "<{url m=$MOD c='sale' a='apply_list' api='true'}>",
+                    'data': { status: status},
+                    "success" : function (res) {
+                        res = JSON.parse(res)
+                        var list = res.list;
+                        for (let index in list) {
+                            let apply = list[index]
+                            apply.way = that.ways[apply.way]
+                            apply.visible = false
+                            apply.accepting = false
+                            apply.putwaying = false
+                            apply.canceling = false
+                            apply.statusText = that.statusMap[parseInt(apply.status)].value
+                            list[index] = apply
+                        }
+                        that.applyList = list
+                        that.loading = false
+                    }
+                })
+            },
+            view: function (apply) {
+                let that = this
+                that.fullscreenLoading = true
+                $.ajax({
+                    'url' : "<{url m=$MOD c='sale' a='goods_list'}>" + "&id=" + apply.id,
+                    "success" : function (res) {
+                        res = JSON.parse(res)
+                        var list = res.list
+                        for (let index in list) {
+                            list[index].goods_image = 'https://image.tiaozaoj.com/' + list[index].goods_image
+                        }
+                        that.goodsList = list
+                        that.dialogTableVisible = true
+                        that.fullscreenLoading = false
+                    }
+                })
+            },
+            putway: function (scope) {
+                let that = this
+                var apply = scope.row
+                apply.putwaying = true
+                this.applyList.splice(scope.$index, 1, apply)
+                $.ajax({
+                    'url' : "<{url m=$MOD c='sale' a='putway'}>",
+                    'method' : 'post',
+                    'data': {
+                        id: apply.id
+                    },
+                    "success" : function (res) {
+                        res = JSON.parse(res)
+                        that.showList(that.selectedStatus)
+                        that.recycleUserId = ''
+                        that.$message({
+                            message: res.status,
+                            type: 'success'
+                        });
+                    }
+                })
+            },
+            cancel: function (scope) {
+                var apply = scope.row
+                apply.canceling = true
+                this.applyList.splice(scope.$index, 1, apply)
+                let that = this
+                $.ajax({
+                    'url' : "<{url m=$MOD c='sale' a='cancel'}>",
+                    'method' : 'post',
+                    'data': {
+                        id: apply.id
+                    },
+                    "success" : function (res) {
+                        res = JSON.parse(res)
+                        that.showList(that.selectedStatus)
+                        that.$message({
+                            message: res.status,
+                            type: 'success'
+                        })
+                    }
+                })
+            },
+        }
+    })
+  </script>
+</html>

@@ -1,0 +1,288 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <{include file='mobile/default/lib/meta.html'}>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta name="keywords" content="<{$GLOBALS.cfg.home_keywords}>"/>
+    <meta name="description" content="<{$GLOBALS.cfg.home_description}>"/>
+    <title><{$GLOBALS.cfg.home_title}></title>
+    <link rel="stylesheet" type="text/css" href="<{$common.theme}>/iconfont/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="<{$common.theme}>/css/general.css"/>
+    <link rel="stylesheet" type="text/css" href="<{$common.theme}>/css/index.css"/>
+    <link rel="stylesheet" type="text/css" href="<{$common.theme}>/css/dropload.css"/>
+    <script type="text/javascript" src="<{$common.theme}>/js/zepto.min.js"></script>
+    <script type="text/javascript" src="<{$common.theme}>/js/verydows.mobile.js"></script>
+    <link rel="stylesheet" type="text/css" href="<{$common.theme}>/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="<{$common.theme}>/css/addpolicy.css">
+    <link rel="stylesheet" type="text/css" href="<{$common.theme}>/css/font.css">
+    <link rel="stylesheet" href="<{$common.theme}>/css/swiper-3.3.1.min.css"/>
+
+    <style>
+        .tab-list {
+            displey: -webkit-flex;
+            display: flex;
+            -webkit-flex-flow: row nowrap;
+            /*设置排列方式为横向排列，并且超出元素不换行 */
+            flex-flow: row nowrap;
+            overflow-x: auto;
+            list-style: none;
+            background: #fff;
+            box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 6px, rgba(0, 0, 0, 0.12) 0px 1px 4px;
+            width: 100%;
+            position: relative;
+            margin-top: -37px;
+            z-index: 1000;
+        }
+        .search-header {
+            margin-bottom: 37px;
+        }
+        .tab-list::-webkit-scrollbar {display:none}
+        .absmu a {
+            width: 20%;
+        }
+    </style>
+    <script type="text/javascript" src="<{$common.theme}>/js/Libs/jquery.min.js"></script>
+    <script type="text/javascript" src="<{$common.theme}>/js/dropload.js"></script>
+    <script type="text/javascript" src="<{$common.theme}>/js/Libs/jquery.json.js"></script>
+    <!--Mobiscroll -->
+    <link rel="stylesheet" href="<{$common.theme}>/css/Mobiscroll/mobiscroll.frame.css"/>
+    <link rel="stylesheet" href="<{$common.theme}>/css/Mobiscroll/mobiscroll.frame.android.css"/>
+    <link rel="stylesheet" href="<{$common.theme}>/css/Mobiscroll/mobiscroll.frame.android-holo.css"/>
+    <link rel="stylesheet" href="<{$common.theme}>/css/Mobiscroll/mobiscroll.scroller.css"/>
+    <link rel="stylesheet" href="<{$common.theme}>/css/Mobiscroll/mobiscroll.scroller.android.css"/>
+    <link rel="stylesheet" href="<{$common.theme}>/css/Mobiscroll/mobiscroll.scroller.android-holo.css"/>
+    <script type="text/javascript" src="<{$common.theme}>/js/Mobiscroll/mobiscroll.core.js"></script>
+    <script type="text/javascript" src="<{$common.theme}>/js/Mobiscroll/mobiscroll.frame.js"></script>
+    <script type="text/javascript" src="<{$common.theme}>/js/Mobiscroll/mobiscroll.scroller.js"></script>
+    <script type="text/javascript" src="<{$common.theme}>/js/Mobiscroll/mobiscroll.util.datetime.js"></script>
+    <script type="text/javascript" src="<{$common.theme}>/js/Mobiscroll/mobiscroll.datetimebase.js"></script>
+    <script type="text/javascript" src="<{$common.theme}>/js/Mobiscroll/mobiscroll.datetime.js"></script>
+    <script type="text/javascript" src="<{$common.theme}>/js/Mobiscroll/mobiscroll.frame.android.js"></script>
+    <script type="text/javascript" src="<{$common.theme}>/js/Mobiscroll/mobiscroll.frame.android-holo.js"></script>
+    <script type="text/javascript" src="<{$common.theme}>/js/Mobiscroll/mobiscroll.i18n.zh.js"></script>
+    <script type="text/javascript" src="<{$common.theme}>/js/Libs/swiper-3.3.1.jquery.min.js"></script>
+    <script type="text/javascript" src="<{$common.theme}>/js/Addpolicy.js"></script>
+    <script src="<{$common.theme}>/js/jquery.lazyload.min.js?v=1.9.7"></script>
+    <script type="text/javascript" src="<{$common.baseurl}>/public/script/juicer.js"></script>
+    <script type="text/javascript" src="<{$common.theme}>/js/cart_fly/jquery.fly.min.js"></script>
+    <script type="text/template" id="goods-list-tpl">
+        {@each list as v}
+        <div class="goods_card">
+            <a href="<{url c='mobile/goods' a='index' id='${v.goods_id}'}>">
+                <div class="img-container">
+                    <img class="lazy" src="https://image.tiaozaoj.com/lazy.png"
+                         data-original="<{$GLOBALS['cfg']['image_host']}>${v.goods_image}<{$GLOBALS['cfg']['image_style']['middle']}>">
+                    {@if v.stock_qty == 0}
+                    <div class="has-selled">卖光啦</div>
+                    {@else if v.pre_sell > 0}
+                    <div class="pre-sell">可预定<i class="iconfont clock">&#xe6a2;</i></div>
+                    {@/if}
+                </div>
+            </a>
+            <div class="name">${v.goods_name}</div>
+            <div class="price">
+        <span class="sell-price">
+          ¥${v.now_price}
+          {@if v.original_price > 0}
+          <span class="original-price">
+              ${(v.now_price / v.original_price * 10).toFixed(1)}折
+          </span>
+          {@/if}
+        </span>
+                {@if v.stock_qty > 0}
+                <div class="to-cart">
+                    <span class="goods-id">${v.goods_id}</span>
+                    <i class="iconfont add-cart-icon">&#xe602;</i>
+                </div>
+                {@/if}
+            </div>
+        </div>
+        {@/each}
+    </script>
+    <script type="text/javascript" charset="utf-8">
+        
+        function stayCates() {
+            //search在滚动条下滑一定高度后固定置顶
+            var target = $("#regUseBtn");
+            var titleH = target.offset().top;
+            console.log(titleH)
+            //获取滚动条下滑高度（即search固定置顶的条件）
+            $(window).scroll(function () {                                //window滚动条事件
+                var scroH = $(this).scrollTop();                          //获取滚动条滑动的距离
+                if (scroH >= titleH) {                                     //判断滚动条滑动高度是否大于指定条件高度
+                    target.css({ "position": "fixed", "top": 0,"width": "100%",
+                    "z-index": 1000, "margin-top":0 }); //大于就执行search固定置顶
+                } else if (scroH <= titleH) {                             //小于等于指定条件高度
+                    target.css({ "position": "relative","margin-top":"-37px" });          //则就恢复原位
+                }
+            });
+        }
+
+        $(function () {
+            stayCates();
+            viewCartbar();
+            preserveSpace('footnav');
+
+            $("img.lazy").lazyload({
+                effect: "fadeIn"
+            });
+
+            $(window).scroll(function () {
+                var scrollPos = $(window).scrollTop();
+                if (scrollPos >= $(".header").get(0).offsetHeight) {
+                    $(".header").addClass("header-fixed");
+                } else {
+                    $(".header").removeClass("header-fixed");
+                }
+            });
+            setInterval(function () {
+                $('.to-cart').unbind();
+                $('.to-cart').on('click', function () {
+                    var _this = this;
+                    var offset = $("#end").offset();
+                    var addcar = $(this);
+                    var img = addcar.parent().parent().find('img').attr('src');
+                    var flyer = $('<img class="u-flyer" src="' + img + '">');
+                    flyer.fly({
+                        start: {
+                            left: addcar.offset().left,
+                            top: addcar.offset().top - $(document).scrollTop() - addcar.height()
+                        },
+                        end: {
+                            left: offset.left + 50,
+                            top: offset.top - $(document).scrollTop() + 30,
+                            width: 0,
+                            height: 0
+                        },
+                        onEnd: function () {
+                            var goods_id = parseInt(addcar.children('.goods-id').html());
+                            addToCart(goods_id, true, _this);
+                            this.destory();
+                        }
+                    });
+                });
+            }, 1000);
+        });
+
+        function scrollDirect(fn) {
+            var beforeScrollTop = document.body.scrollTop;
+            fn = fn || function () {
+            };
+            window.addEventListener("scroll", function (event) {
+                event = event || window.event;
+
+                var afterScrollTop = document.body.scrollTop;
+                delta = afterScrollTop - beforeScrollTop;
+                beforeScrollTop = afterScrollTop;
+
+                var scrollTop = $(this).scrollTop();
+                var scrollHeight = $(document).height();
+                var windowHeight = $(this).height();
+                if (scrollTop + windowHeight > scrollHeight - 10) {  //滚动到底部执行事件
+                    fn('up');
+                    return;
+                }
+                if (afterScrollTop < 10 || afterScrollTop > $(document.body).height - 10) {
+                    fn('up');
+                } else {
+                    if (Math.abs(delta) < 10) {
+                        return false;
+                    }
+                    fn(delta > 0 ? "down" : "up");
+                }
+            }, false);
+        }
+
+        function inSearch() {
+            $('#wrapper').hide();
+            $('#searcher').show();
+            $("#kwenter").focus();
+        }
+
+        function outSearch() {
+            $('#searcher').hide();
+            $('#wrapper').show();
+        }
+
+        var urlApi = "<{url c='mobile/main' a='more'}>";
+        var urlGoods = "<{url c='mobile/goods' a='index'}>";
+        var imgHost = "<{$GLOBALS['cfg']['image_host']}>";
+        var imgStyle = "<{$GLOBALS['cfg']['image_style']['middle']}>";
+    </script>
+</head>
+<body>
+<{if !empty($full_cut)}>
+<div class="bonus">
+    <span class="shop-bonus-label"><{$full_cut['type']}></span>
+    <{$full_cut['title']}>
+    <{foreach $full_cut.list as $k => $v}>
+    , 满<{$v['order_fee']}>减<{$v['discount_fee']}>
+    <{/foreach}>
+</div>
+<{/if}>
+<{include file='mobile/default/lib/searcher.html'}>
+<div class="wrapper" id="wrapper">
+    <div class="header search-header">
+        <div class="search" onclick="inSearch()">
+            <i class="f22 iconfont">&#xe651;</i>
+            <span>搜索</span>
+        </div>
+    </div>
+    <section class="main">
+        <div class="anniu tab-list" id="regUseBtn">
+            <{foreach $categories as $key => $category}>
+            <a href="#" class="Btnbutton <{if $key == 0}>regUseCurr<{/if}>" data-cate="<{$category['cate_id']}>">
+                <{$category['cate_name']}>
+            </a>
+            <{/foreach}>
+        </div>
+        <div class="swiper-container" id="registerCont">
+            <div class="swiper-wrapper">
+            <{foreach $categories as $key => $category}>
+                    <div class="swiper-slide" data-hash="slide<{$key+1}>">
+                        <div class="baodanall">
+                            <{if !empty($category['list'])}>
+                                <{foreach $category['list'] as $v}>
+                                <div class="goods_card">
+                                    <a href="<{url c='mobile/goods' a='index' id=$v.goods_id}>">
+                                        <div class="img-container">
+                                            <img class="lazy" src="https://image.tiaozaoj.com/lazy.png"
+                                                 data-original="<{$GLOBALS['cfg']['image_host'].$v.goods_image.$GLOBALS['cfg']['image_style']['middle']}>">
+                                            <{if $v.stock_qty == 0}>
+                                            <div class="has-selled">卖光啦</div>
+                                            <{elseif $v.pre_sell}>
+                                            <div class="pre-sell">可预定<i class="iconfont clock">&#xe6a2;</i></div>
+                                            <{/if}>
+                                        </div>
+                                    </a>
+                                    <div class="name"><{truncate($v.goods_name, 40)}></div>
+                                    <div class="price">
+                                        <span class="sell-price">¥<{$v.now_price}><span class="original-price"><{if $v.original_price > 0}> <{sprintf("%.1f",$v.now_price/$v.original_price * 10)}>折 <{/if}></span></span>
+                                        <div class="to-cart <{$v.stock_qty?'':'hide'}>">
+                                            <span class="goods-id"><{$v.goods_id}></span>
+                                            <i class="iconfont add-cart-icon">&#xe602;</i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <{/foreach}>
+                            <{/if}>
+                        </div>
+                    </div>
+            <{/foreach}>
+            </div>
+        </div>
+    </section>
+</div>
+<div class="footnav absmu" id="footnav">
+    <a class="cur"><i class="iconfont">&#xe606;</i><span>首页</span></a>
+    <a id="cartbar" href="<{url c='mobile/cart' a='index'}>"><i class="iconfont" id="end">&#xe6af;</i><span>购物车</span><em class="hide">0</em></a>
+    <a href="<{url c='mobile/goods' a='bookorder'}>"><i class="iconfont">&#xe608;</i><span>一键购书</span></a>
+    <a href="<{url c='mobile/order' a='list'}>"><i class="iconfont">&#xe683;</i><span>订单</span></a>
+    <a href="<{url c='mobile/user' a='index'}>"><i class="iconfont">&#xe632;</i><span>我的</span></a>
+</div>
+<{include file='mobile/default/lib/footer.html'}>
+
+<script type="text/javascript" src="<{$common.theme}>/js/verydows.mobile.js"></script>
+<script type="text/javascript" src="<{$common.theme}>/js/goods.js"></script>
+</body>
+</html>

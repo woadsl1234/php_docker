@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <{include file='backend/lib/meta.html'}>
+    <link rel="stylesheet" type="text/css" href="public/theme/backend/css/verydows.css" />
+    <link rel="stylesheet" type="text/css" href="public/theme/backend/css/main.css" />
+    <link rel="stylesheet" type="text/css" href="public/theme/backend/css/datetimepicker.css"/>
+    <script type="text/javascript" src="public/script/jquery.js"></script>
+    <script type="text/javascript" src="public/theme/backend/js/verydows.js"></script>
+    <style type="text/css">
+        .status-not-start {
+            color: #666;
+        }
+        .status-end {
+            color:red;
+        }
+        .status-going-on {
+            color: green;
+        }
+        #add-full-cut,#remove-full-cut {
+            color:#ff850b;
+            margin: 0 5px;
+        }
+    </style>
+    <script type="text/javascript">
+        var list = {};
+        $(function(){
+            $('#kw').bind('input', function() {
+                  dataset = {
+                    cate_id: $('#cate_id').val(),
+                    brand_id: $('#brand_id').val(),
+                    sign_id: $('#sign_id').val(),
+                    status: $('#status').val(),
+                    kw: $('#kw').val(),
+                    sort_id: $('#sort_id').val(),
+                    page: 1,
+                    pernum: 12,
+                  };
+                  $.asynList("<{url m=$MOD c='goods' a='index' step='search'}>", dataset, function(data){
+                    if(data.status == 'success'){
+                        var options = "";
+                        for (var i = data.list.length - 1; i >= 0; i--) {
+                            options += '<option data-id="' + data.list[i]['goods_id'] + '" value="' + data.list[i]['goods_sn'] + '"> ' + data.list[i]['goods_name'] +'</option>';
+                        };
+                        $('#goods-ids').html(options);
+                        list = data.list;
+                    } else {
+                        $("#add").addClass('disabled').attr('disabled', true);
+                    }
+                });
+            });
+        });
+
+        function inputSelect(){  
+            var input_select = $("#kw").val();  
+            var option_length=$("option").length;  
+            var option_id='';  
+            for(var i=0;i<option_length;i++){  
+                var option_value=$("option").eq(i).attr('value');  
+                if(input_select==option_value){  
+                    option_id=$("option").eq(i).attr('data-id');  
+                    break;  
+                }  
+            }  
+            for (var i = list.length - 1; i >= 0; i--) {
+                if (list[i].goods_id == option_id) {
+                    $("#now_price").html(list[i].now_price);
+                    $("#goods_name").html(list[i].goods_name);
+                    $("#original_price").html(list[i].original_price);
+                    $("#goods_id").val(list[i].goods_id);
+                    $("#add").removeClass('disabled').attr('disabled', false);
+                    break;
+                }
+            };
+        };
+    </script>
+</head>
+<body>
+<div class="content">
+    <div class="loc"><h2><i class="icon"></i>限量回收 / 添加商品</h2></div>
+    <form method="post" action="<{url m=$MOD c='recycle' a='add' step='submit'}>">
+        <div class="box">
+            <div class="module">
+                <table class="dataform">
+                    <tr>
+                        <th width="110">书号</th>
+                        <td>
+                            <input list="goods-ids" class="txt" id="kw" placeholder="书号" onchange="inputSelect()"/>
+                            <datalist id="goods-ids">
+
+                            </datalist>
+                        </td>
+                    </tr>
+                    <input type="hidden" name="goods_id" id="goods_id">  
+                    <tr>
+                        <th width="110">书名</th>
+                        <td id="goods_name">
+                           
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="110">原价</th>
+                        <td id="original_price">
+                           
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="110">当前售价</th>
+                        <td id="now_price">
+                            
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="110">回收价</th>
+                        <td>
+                            <input class="txt" type="text"  name="price"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="110">计划回收</th>
+                        <td>
+                            <input class="txt" type="number"  name="total"/>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="submitbtn">
+                <button type="submit" class="ubtn btn submit disabled" disabled id="add">确认添加</button>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+</html>

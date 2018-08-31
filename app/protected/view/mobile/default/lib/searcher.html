@@ -1,0 +1,118 @@
+<style>
+  .match-count {
+    float: right;
+    color: #999;
+  }
+</style>
+<div class="searcher module hide" id="searcher">
+  <div class="main">
+    <a class="close pointer" href="#home" onclick="outSearch()"><i class="iconfont">&#xe62d;</i></a>
+    <div class="scin cut">
+      <a class="fr" onclick="searchGoods()"><i class="iconfont">&#xe651;</i></a>
+      <form action="javascript:searchGoods()">
+        <div class="in cut">
+          <input id="kwenter" name="kw" type="search" class="variseclear" value="<{if !empty($_GET['kw'])}><{$_GET['kw']}><{/if}>" required /><i class="vinclrbtn iconfont">&#xe62d;</i>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div id="suggest">
+  </div>
+  <{if !empty($hot_searches)}>
+  <dl class="hot">
+    <dt>热搜：</dt>
+    <dd>
+      <{foreach $hot_searches as $v}>
+      <a href="<{url c='mobile/search' a='index' kw=$v}>"><{$v}></a>
+      <{/foreach}>
+    </dd>
+  </dl>
+  <{/if}>
+  <div id="history">
+  </div>
+</div>
+<script type="text/javascript" src="<{$common.theme}>/js/verydows.mobile.js"></script>
+<script type="text/javascript">
+$(function(){
+  $('#kwfake').focus(function(){$('#wrapper').hide();$('#searcher').show();$(this).blur();$('#kwenter').focus();});
+  showHistory();
+
+  $('#kwenter').on('input', function(e) {
+      var kw = $('#kwenter').val().trim();
+      if (kw) {
+          search_suggest(kw);
+          $('.hot').hide();
+          $('#history').hide();
+      } else {
+          $('#suggest').hide();
+          $('.hot').show();
+          $('#history').show();
+      }
+  })
+});
+
+function searchGoods(){
+  var words = $('#kwenter').val(), target = "<{url c='mobile/search' a='index' kw='$words'}>";
+  if(words != ''){
+    var history = getJsonStorage('SEARCH_HISTORY');
+    if(history == null) history = [];
+    if($.inArray(words, history) < 0){
+      if(history.unshift(words) > 10) history.pop();
+    }
+    setJsonStorage('SEARCH_HISTORY', history);
+  }
+  window.location.href = target.replace('$words', words);
+}
+
+function showHistory(){
+  var history = getJsonStorage('SEARCH_HISTORY');
+  if(history != null){
+    $('#history').html(juicer($('#history-tpl').html(), {list:history}));
+  }
+}
+
+function clearHistory(){
+    if (confirm("您确定要全部清空吗?'")) {
+        localStorage.removeItem('SEARCH_HISTORY');
+        $('#history').remove();
+    }
+}
+
+function search_suggest(kw) {
+    $.ajax({
+        type: 'get',
+        dataType: 'json',
+        url: "<{url c='api/goods' a='search_suggest'}>",
+        data: {"kw" : kw},
+        success: function(res){
+            if (("success" == res.status)  && (res.list.length > 0)) {
+                $('#suggest').html(juicer($('#suggest-tpl').html(), {list : res.list})).show();
+            } else {
+                $('#suggest').html("");
+            }
+        }
+    });
+}
+
+</script>
+<script type="text/template" id="history-tpl">
+<dl class="history">
+  <dt>历史：</dt>
+  <dd>
+    {@each list as v}
+    <a href="<{url c='mobile/search' a='index' kw='${v}'}>">${v}</a>
+    {@/each}
+    <a class="clear" onclick="clearHistory()">清除历史记录</a>
+  </dd>
+</dl>
+</script>
+<script type="text/template" id="suggest-tpl">
+  <dl class="history">
+    <dt>推荐：</dt>
+    <dd>
+      {@each list as v}
+      <a href="<{url c='mobile/search' a='index' kw='${v[\'keyword\']}'}>">${v['keyword']}<div class="match-count">${v['count']}</div></a>
+      {@/each}
+    </dd>
+  </dl>
+</script>

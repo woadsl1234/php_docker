@@ -7,4 +7,6 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'e8aa6e4b5a1db2f56ae794f1505391a8' => $vendorDir . '/amphp/amp/lib/functions.php',
+    '841780ea2e1d6545ea3a253239d59c05' => $vendorDir . '/qiniu/php-sdk/src/Qiniu/functions.php',
+    '923ba6cbca579b3c0c0e28325e34b8e4' => $vendorDir . '/wtwei/alipay-sdk-php/src/AopSdk.php',
 );

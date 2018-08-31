@@ -1,0 +1,25 @@
+*{font-family:"microsoft yahei", sans-serif,Arial; font-size:100%;}
+html,body{
+	background: #f2f2f2;
+}
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,form,fieldset,input,button,textarea,p,th,td{padding:0;margin:0;font-family:Microsoft YaHei,sans-serif,Arial}
+fieldset,img{border:0}
+a{text-decoration:none;color:#000;outline:none}
+li{list-style:none}
+i{ font-style: normal;}
+h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal; font-family: "microsoft yahei";}
+input,button,textarea,select,optgroup,option{font-family:inherit;font-style:inherit;font-weight:inherit}
+input,button,textarea,select{*font-size:100%;outline: none;}
+a{-webkit-transition:all 0.3s linear;-moz-transition:all 0.3s linear;-ms-transition:all 0.3s linear;-o-transition:all 0.3s linear}
+.clear:after{
+  display:block; 
+  content:"clear"; 
+  height:0; 
+  clear:both; 
+  overflow:hidden; 
+  visibility:hidden;
+}
+.clear{zoom:1;}
+.floatL{float: left;}
+.floatR{float: right;}
+.btn{ border-radius: 4px;}
